@@ -60,7 +60,7 @@ class Track:
     features : List[ndarray]
         A cache of features. On each measurement update, the associated feature
         vector is added to this list.
-    initialDetectionData: List[ndarray]
+    initialDetectionData: (bbox, score)
         A cache of the initial detected object data
 
     """
@@ -73,7 +73,7 @@ class Track:
         self.hits = 1
         self.age = 1
         self.time_since_update = 0
-        self.initialDetectionData = [] # contains bbox, score 
+        self.initialDetectionData = None # contains bbox, score 
 
         self.state = TrackState.Tentative
         self.features = []
@@ -141,7 +141,7 @@ class Track:
         self.mean, self.covariance = kf.update(
             self.mean, self.covariance, detection.to_xyah())
         self.features.append(detection.feature)
-        self.initialDetectionData.append({"bbox": detection.bbox, "score": detection.score})
+        self.initialDetectionData = {"bbox": detection.to_tlbr(), "score": detection.confidence}
 
         self.hits += 1
         self.time_since_update = 0
